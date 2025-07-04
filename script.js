@@ -1,5 +1,5 @@
 
-const scriptURL = "https://script.google.com/macros/s/AKfycbyd1bxvPrwqZVeANqJ95he47RfuAck420LTQ0YOsBiJDvISLnXU-emPX9HbxLhGOPou/exec";
+const scriptURL = "https://script.google.com/macros/library/d/1wXQ42GTeGIElDxL-0ZzuYaW9243hbF9R8Nwvx-sWBpWJCHkGgGYP5_Yr/1";
 
 document.getElementById("loginForm")?.addEventListener("submit", async function (e) {
   e.preventDefault();
