@@ -1,25 +1,125 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <title>Login Checker/Admin</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Login Mobilisasi Truk</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background-color: #1e1e1e;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px 20px;
+    }
+    select, input[type="password"], button {
+      padding: 12px;
+      margin: 10px auto;
+      width: 90%;
+      max-width: 300px;
+      display: block;
+      font-size: 16px;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    h2 {
+      margin-bottom: 30px;
+    }
+  </style>
 </head>
 <body>
-  <div class="login-container">
-    <h2>Login</h2>
-    <form id="loginForm">
-      <input type="text" id="username" placeholder="Username" required />
-      <input type="password" id="password" placeholder="Password" required />
-      <select id="role">
-        <option value="Checker">Checker</option>
-        <option value="Admin">Admin</option>
-      </select>
-      <button type="submit">Login</button>
-    </form>
-    <div id="loginMessage"></div>
-  </div>
-  <script src="script.js"></script>
+
+  <h2>Login Mobilisasi Truk</h2>
+
+  <label for="role">Pilih Role:</label>
+  <select id="role" onchange="loadUsernames()">
+    <option value="">-- Pilih --</option>
+    <option value="Admin">Admin</option>
+    <option value="Checker">Checker</option>
+  </select>
+
+  <label for="username">Username:</label>
+  <select id="username">
+    <option value="">-- Pilih Role Dulu --</option>
+  </select>
+
+  <label for="password">Password:</label>
+  <input type="password" id="password" placeholder="Masukkan password" />
+
+  <button onclick="login()">Login</button>
+
+  <p id="pesan" style="color: red;"></p>
+
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyd1bxvPrwqZVeANqJ95he47RfuAck420LTQ0YOsBiJDvISLnXU-emPX9HbxLhGOPou/exec";
+
+    async function loadUsernames() {
+      const role = document.getElementById("role").value;
+      const usernameSelect = document.getElementById("username");
+      usernameSelect.innerHTML = `<option>Memuat...</option>`;
+
+      if (!role) return;
+
+      try {
+        const res = await fetch(`${scriptURL}?action=getUsers&role=${role}`);
+        const data = await res.json();
+        usernameSelect.innerHTML = '<option value="">-- Pilih Username --</option>';
+        data.forEach(user => {
+          const opt = document.createElement("option");
+          opt.value = user;
+          opt.textContent = user;
+          usernameSelect.appendChild(opt);
+        });
+      } catch (err) {
+        usernameSelect.innerHTML = '<option value="">Gagal memuat user</option>';
+        console.error(err);
+      }
+    }
+
+    async function login() {
+      const role = document.getElementById("role").value;
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      const pesan = document.getElementById("pesan");
+
+      if (!role || !username || !password) {
+        pesan.textContent = "Semua field harus diisi.";
+        return;
+      }
+
+      try {
+        const res = await fetch(scriptURL, {
+          method: 'POST',
+          body: new URLSearchParams({
+            action: 'login',
+            role: role,
+            username: username,
+            password: password
+          })
+        });
+
+        const result = await res.json();
+
+        if (result.success) {
+          sessionStorage.setItem("username", username);
+          sessionStorage.setItem("role", role);
+          window.location.href = "project.html";
+        } else {
+          pesan.textContent = "Login gagal. Periksa kembali data Anda.";
+        }
+      } catch (err) {
+        console.error(err);
+        pesan.textContent = "Terjadi kesalahan saat login.";
+      }
+    }
+  </script>
 </body>
 </html>
